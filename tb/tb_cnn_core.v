@@ -17,7 +17,6 @@ module cnn_mnist_tb;
     // Post-pool dimension is 13x13 = 169 flattened features
     parameter FLATTENED_FEATURES = 169;
 
-    // --- Testbench Signals ---
     reg clk;
     reg ce;
     reg load;
@@ -32,19 +31,17 @@ module cnn_mnist_tb;
 
     // --- Hex File Memory Arrays ---
     reg [TOTAL_W - 1 : 0] conv_mem  [0 : 8];
-    reg [TOTAL_W - 1 : 0] dense_mem [0 : (CLASSES * FLATTENED_FEATURES) - 1]; // 1690 values
+    reg [TOTAL_W - 1 : 0] dense_mem [0 : (CLASSES * FLATTENED_FEATURES) - 1]; 
     
-    // Expanded for 100 images (100 * 784 = 78400 pixels)
     reg [TOTAL_W - 1 : 0] image_mem [0 : 78399];                              
     // Ground truth labels for accuracy checking
     reg [3:0]             label_mem [0 : 99];                                 
 
     integer i, j, img_num;
-    integer p_idx; // Tracks which pooled pixel we are currently processing
+    integer p_idx; 
     integer correct_count = 0;
     reg [3:0] expected_label;
 
-    // --- Instantiate the Top Level SOC ---
     cnn_accelerator_top #(
         .n(n), .k(k), .s(s), .P(P), .W(W), .Q(Q), .CLASSES(CLASSES)
     ) uut (
@@ -62,7 +59,6 @@ module cnn_mnist_tb;
     // --- Clock Generation ---
     always #(CLK_PERIOD/2) clk = ~clk;
 
-    // --- Dynamic Memory Controller for Dense Layer ---
     always @(posedge clk) begin
         if (uut.valid_pool && p_idx < FLATTENED_FEATURES) begin
             p_idx = p_idx + 1;
@@ -74,9 +70,7 @@ module cnn_mnist_tb;
         end
     end
 
-    // --- Main Stimulus Block ---
     initial begin
-        // Optional: comment these out if you don't want a massive VCD file for 100 images
         // $dumpfile("mnist_hardware_waves.vcd");
         // $dumpvars(0, cnn_mnist_tb);
 
@@ -100,22 +94,21 @@ module cnn_mnist_tb;
         // 3. Loop Through All 100 Images
         for (img_num = 0; img_num < 100; img_num = img_num + 1) begin
             
-            // A. Reset Dynamic Controller State for the new image
             p_idx = 0;
             
-            // B. Pre-load the first column of Dense Weights for Pixel 0
+            // A. Pre-load the first column of Dense Weights for Pixel 0
             for (j = 0; j < CLASSES; j = j + 1) begin
                 dense_weight[j*TOTAL_W +: TOTAL_W] = dense_mem[j * FLATTENED_FEATURES + 0];
             end
 
-            // C. Hardware Reset Sequence (clears internal accumulators/counters)
+            // B. Hardware Reset Sequence (clears internal accumulators/counters)
             ce = 0;
             rst_n = 0;
             #(CLK_PERIOD * 2);
             rst_n = 1;
             #(CLK_PERIOD * 2);
 
-            // D. Latch weights into Convolver
+            // C. Latch weights into Convolver
             load = 1;
             #(CLK_PERIOD);
             load = 0;

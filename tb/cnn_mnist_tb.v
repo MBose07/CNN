@@ -56,17 +56,13 @@ module cnn_mnist_tb;
     // --- Clock Generation ---
     always #(CLK_PERIOD/2) clk = ~clk;
 
-    // --- Dynamic Memory Controller for Dense Layer ---
-    // This feeds 10 new weights to the MAC array every time a valid pooled pixel arrives.
     always @(posedge clk) begin
-        // Monitor the internal handshake wire between the Pooler and the Dense layer
         if (uut.valid_pool && p_idx < FLATTENED_FEATURES) begin
             p_idx = p_idx + 1;
             
             // Fetch the 10 weights for the next pixel
             if (p_idx < FLATTENED_FEATURES) begin
                 for (j = 0; j < CLASSES; j = j + 1) begin
-                    // 2D addressing to match PyTorch's [10, 169] flattened tensor
                     dense_weight[j*TOTAL_W +: TOTAL_W] = dense_mem[j * FLATTENED_FEATURES + p_idx];
                 end
             end
