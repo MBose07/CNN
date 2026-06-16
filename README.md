@@ -162,7 +162,7 @@ Expected delay: ~50-60 clock cycles per image
 
 **Batch Test Results Screenshot:**
 
-![MNIST Hardware CNN - Batch Test Results](https://[PLACEHOLDER_SCREENSHOT_URL])
+![MNIST Hardware CNN - Batch Test Results]([https://[PLACEHOLDER_SCREENSHOT_URL]](https://github.com/MBose07/CNN/blob/main/Screenshot%202026-06-16%20185639.png))
 
 > [PLACEHOLDER: Screenshot showing console output from 100-image batch inference with accuracy metrics]
 
